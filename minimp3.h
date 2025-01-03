@@ -1566,7 +1566,7 @@ static void mp3d_synth(float *xl, mp3d_sample_t *dstl, int nch, float *lins)
 
 #else /* MINIMP3_FLOAT_OUTPUT */
 
-            static const f4 g_scale = { 1.0f/32768.0f, 1.0f/32768.0f, 1.0f/32768.0f, 1.0f/32768.0f };
+            static const f4 g_scale = VSET( 1.0f / 32768.0f );
             a = VMUL(a, g_scale);
             b = VMUL(b, g_scale);
 #if HAVE_SSE
@@ -1813,12 +1813,12 @@ void mp3dec_f32_to_s16(const float *in, int16_t *out, int num_samples)
     int aligned_count = num_samples & ~7;
     for(; i < aligned_count; i += 8)
     {
-        static const f4 g_scale = { 32768.0f, 32768.0f, 32768.0f, 32768.0f };
+        static const f4 g_scale = VSET( 32768.0f );
         f4 a = VMUL(VLD(&in[i  ]), g_scale);
         f4 b = VMUL(VLD(&in[i+4]), g_scale);
 #if HAVE_SSE
-        static const f4 g_max = { 32767.0f, 32767.0f, 32767.0f, 32767.0f };
-        static const f4 g_min = { -32768.0f, -32768.0f, -32768.0f, -32768.0f };
+        static const f4 g_max = VSET( 32767.0f );
+        static const f4 g_min = VSET( -32768.0f );
         __m128i pcm8 = _mm_packs_epi32(_mm_cvtps_epi32(_mm_max_ps(_mm_min_ps(a, g_max), g_min)),
                                        _mm_cvtps_epi32(_mm_max_ps(_mm_min_ps(b, g_max), g_min)));
         _mm_storeu_si128( (__m128i *)(&out[i]), pcm8 );
